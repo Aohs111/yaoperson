@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夏的二十一</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(45deg, #64b3f4, #c2e9fb, #a6c1ee, #b8c6db);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 添加流星效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: transparent;
+            z-index: -1;
+        }
+        
+        .shooting-star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            z-index: -1;
+            animation: shooting 5s linear infinite;
+        }
+        
+        /* 花瓣形状 */
+        .petal {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            z-index: -1;
+            animation: falling 5s linear infinite;
+        }
+        
+        .petal::before, .petal::after {
+            content: '';
+            position: absolute;
+            background-color: currentColor;
+            border-radius: 50% 50% 0 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        .petal::before {
+            width: 100%;
+            height: 100%;
+            transform: rotate(45deg);
+        }
+        
+        .petal::after {
+            width: 100%;
+            height: 100%;
+            transform: rotate(135deg);
+        }
+        
+        /* 点击撒花效果 */
+        .cat-paw {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+            pointer-events: none;
+            animation: pawAnimation 1s forwards;
+            transform-origin: bottom center;
+        }
+        
+        .cat-paw.left {
+            transform: rotate(30deg) scaleX(-1);
+        }
+        
+        .cat-paw.right {
+            transform: rotate(-30deg);
+        }
+        
+        /* 鼠标拖尾效果 */
+        .mouse-trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            transform: translate(-50%, -50%);
+            animation: trailFade 0.8s ease-out forwards;
+        }
+        
+        @keyframes trailFade {
+            0% {
+                opacity: 0.8;
+                width: 8px;
+                height: 8px;
+                box-shadow: 0 0 10px 2px currentColor;
+            }
+            100% {
+                opacity: 0;
+                width: 2px;
+                height: 2px;
+                box-shadow: 0 0 2px 1px currentColor;
+                transform: translate(-50%, -50%) scale(0.3);
+            }
+        }
+        
+        @keyframes pawAnimation {
+            0% {
+                transform: translateY(100%) rotate(30deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            60% {
+                transform: translateY(0) rotate(15deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pawAnimationRight {
+            0% {
+                transform: translateY(100%) rotate(-30deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            60% {
+                transform: translateY(0) rotate(-15deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+            }
+        }
+        
+        .click-petal {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .click-petal::before, .click-petal::after {
+            content: '';
+            position: absolute;
+            background-color: currentColor;
+            border-radius: 50% 50% 0 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        .click-petal::before {
+            width: 100%;
+            height: 100%;
+            transform: rotate(45deg);
+        }
+        
+        .click-petal::after {
+            width: 100%;
+            height: 100%;
+            transform: rotate(135deg);
+        }
+        
+        @keyframes clickPetalFalling {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(var(--end-x, 50px), var(--end-y, 100px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes falling {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(70px + var(--random-x, 0px)), calc(100vh + 50px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes shooting {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw - 50px)) translateY(calc(100vh - 50px));
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 标题样式 */
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #6a3093;
+            text-align: center;
+        }
+
+        /* 幻灯片样式 - 3D 轮播 */
+        .slideshow-container {
+            position: relative;
+            max-width: 800px;
+            height: 350px;
+            margin: 0 auto 40px;
+            perspective: 1000px;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        .carousel-item {
+            position: absolute;
+            width: 60%;
+            height: 100%;
+            left: 20%;
+            top: 0;
+            background: transparent;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            opacity: 0.7;
+            transform: scale(0.8);
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+            transform: scale(1);
+            z-index: 2;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        /* 轮播导航控件 */
+        .carousel-nav {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .prev-btn, .next-btn {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+        }
+
+        .prev-btn:hover, .next-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-dots {
+            margin-top: 15px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+
+        /* 关于我样式 - 透明背景 */
+        .intro {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .intro p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* 照片墙样式 - 透明背景 */
+        .gallery {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .gallery-container img {
+            width: 32%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-container img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 底部样式 - 透明背景 */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .social-subtitle {
+            font-size: 1.1rem;
+            color: #6a3093;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .douyin {
+            background: linear-gradient(45deg, #000000, #FF0050);
+        }
+
+        .weibo {
+            background: linear-gradient(45deg, #FF8200, #FF0000);
+        }
+
+        .xiaohongshu {
+            background: linear-gradient(45deg, #FF0000, #FF5252);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .copyright {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .carousel-item {
+                width: 80%;
+                left: 10%;
+            }
+            
+            .gallery-container img {
+                width: 48%;
+            }
+            
+            .photo-container {
+                width: 80%;
+            }
+            
+            .photo-carousel {
+                height: 250px;
+            }
+            
+            .emoji-container {
+                width: 40%;
+            }
+            
+            .emoji-img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .carousel-item {
+                width: 90%;
+                left: 5%;
+            }
+            
+            .gallery-container img {
+                width: 100%;
+            }
+            
+            .social-links {
+                flex-direction: column;
+            }
+            
+            .social-btn {
+                margin: 5px 0;
+            }
+            
+            .photo-container {
+                width: 100%;
+            }
+            
+            .photo-carousel {
+                height: 200px;
+            }
+            
+            .taishan-photos, .taishan-photos.reverse {
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            .emoji-container {
+                width: 50%;
+                margin: 15px 0;
+                order: 2;
+            }
+            
+            .emoji-img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        /* 泰山游记样式 */
+        .taishan-trip {
+            margin-bottom: 40px;
+        }
+
+        .taishan-trip h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #6a3093;
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+            border-radius: 15px;
+        }
+
+        .article-intro {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .taishan-photos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .taishan-photos.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .photo-container {
+            width: 50%;
+            position: relative;
+        }
+
+        /* Emoji容器样式 */
+        .emoji-container {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 20px;
+        }
+
+        .emoji-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .emoji-img:hover {
+            transform: scale(1.1);
+        }
+
+        .emoji-caption {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #6a3093;
+            text-align: center;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .photo-carousel {
+            position: relative;
+            height: 300px;
+            perspective: 1000px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .photo-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: translateX(100%) scale(0.8);
+            transition: all 0.8s ease;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .photo-item.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            z-index: 2;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-nav {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .photo-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .photo-dot.active {
+            background: white;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+
+        .article-content {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .article-content p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 文章结尾emoji样式 */
+        .emoji-conclusion {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .emoji-conclusion .emoji-img {
+            width: 150px;
+            height: 150px;
+            border: 4px solid rgba(255, 255, 255, 0.7);
+        }
+        
+        .emoji-conclusion .emoji-caption {
+            font-size: 1.2rem;
+            padding: 8px 15px;
+            margin-top: 15px;
+        }
+
+        /* 木鱼游戏样式 */
+        .muyu-game {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 auto 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        .muyu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+        
+        .muyu-image {
+            cursor: pointer;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+        
+        .muyu-image:active {
+            transform: scale(0.95);
+        }
+        
+        .muyu-text {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #555;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+        }
+        
+        .muyu-counter {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #8B4513;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+        }
+        
+        .merit-popup {
+            position: absolute;
+            color: #ff6b6b;
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0;
+            font-size: 20px;
+            animation: float-up 1.5s ease-out;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        @keyframes float-up {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(0);
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-60px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>欢迎来到"夏的二十一"的网址</h1>
+        </header>
+        
+        <!-- 木鱼功德小游戏 -->
+        <section class="muyu-game">
+            <div class="muyu-container">
+                <div class="muyu-image" id="muyuImage1">
+                    <svg width="150" height="150" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 木鱼底座 -->
+                        <ellipse cx="100" cy="140" rx="80" ry="30" fill="#8B4513" />
+                        <!-- 木鱼主体 -->
+                        <ellipse cx="100" cy="80" rx="75" ry="55" fill="#A0522D" />
+                        <!-- 木鱼纹理 -->
+                        <ellipse cx="100" cy="80" rx="65" ry="45" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <ellipse cx="100" cy="80" rx="55" ry="35" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <ellipse cx="100" cy="80" rx="45" ry="25" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <!-- 木鱼敲击区域 -->
+                        <ellipse cx="100" cy="70" rx="25" ry="15" fill="#654321" />
+                        <!-- 木鱼高光 -->
+                        <ellipse cx="80" cy="60" rx="10" ry="5" fill="rgba(255,255,255,0.3)" />
+                    </svg>
+                </div>
+                <div class="muyu-text">左木鱼积德</div>
+                <div class="muyu-counter">功德值: <span id="muyuCounter1">0</span></div>
+            </div>
+            
+            <div class="muyu-container">
+                <div class="muyu-image" id="muyuImage2">
+                    <svg width="150" height="150" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 木鱼底座 -->
+                        <ellipse cx="100" cy="140" rx="80" ry="30" fill="#8B4513" />
+                        <!-- 木鱼主体 -->
+                        <ellipse cx="100" cy="80" rx="75" ry="55" fill="#A0522D" />
+                        <!-- 木鱼纹理 -->
+                        <ellipse cx="100" cy="80" rx="65" ry="45" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <ellipse cx="100" cy="80" rx="55" ry="35" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <ellipse cx="100" cy="80" rx="45" ry="25" fill="none" stroke="#8B4513" stroke-width="2" />
+                        <!-- 木鱼敲击区域 -->
+                        <ellipse cx="100" cy="70" rx="25" ry="15" fill="#654321" />
+                        <!-- 木鱼高光 -->
+                        <ellipse cx="80" cy="60" rx="10" ry="5" fill="rgba(255,255,255,0.3)" />
+                    </svg>
+                </div>
+                <div class="muyu-text">右木鱼积德</div>
+                <div class="muyu-counter">功德值: <span id="muyuCounter2">0</span></div>
+            </div>
+            <audio id="muyuSound" src="hhh/hrxz.com-fd0nizhmm1556291.mp3" preload="auto"></audio>
+        </section>
+        
+        <div class="slideshow-container">
+            <div class="carousel">
+                <div class="carousel-item" data-index="0">
+                    <img src="images/c883eadd8b8300078abd7937c9e97bd.jpg" alt="图片1">
+                </div>
+                <div class="carousel-item" data-index="1">
+                    <img src="images/人物1.jpg" alt="人物1">
+                </div>
+                <div class="carousel-item" data-index="2">
+                    <img src="images/02a16e02c639199c07758395de68290.jpg" alt="图片2">
+                </div>
+                <div class="carousel-item" data-index="3">
+                    <img src="images/人物2.jpg" alt="人物2">
+                </div>
+                <div class="carousel-item" data-index="4">
+                    <img src="images/a2856b22d32b40f9d50f51ad078d9fe.jpg" alt="图片3">
+                </div>
+                <div class="carousel-item" data-index="5">
+                    <img src="images/人物3.jpg" alt="人物3">
+                </div>
+                <div class="carousel-item" data-index="6">
+                    <img src="images/898f09d56997aa61b85c205c73b41d4.jpg" alt="图片4">
+                </div>
+            </div>
+            <div class="carousel-nav">
+                <button class="prev-btn">❮</button>
+                <button class="next-btn">❯</button>
+                <div class="carousel-dots">
+                    <span class="dot active" data-index="0"></span>
+                    <span class="dot" data-index="1"></span>
+                    <span class="dot" data-index="2"></span>
+                    <span class="dot" data-index="3"></span>
+                    <span class="dot" data-index="4"></span>
+                    <span class="dot" data-index="5"></span>
+                    <span class="dot" data-index="6"></span>
+                </div>
+            </div>
+        </div>
+        
+        <section class="intro">
+            <h2>关于我</h2>
+            <p>嗨，我是夏的二十一！在这个充满奇思妙想的宇宙角落里，我总是尝试用不同的方式表达自己。</p>
+            <p>当我不在网上晃荡的时候，我可能正在研究如何让仙人掌在冬天也能茁壮成长，或者尝试用筷子吃意大利面（相信我，这是一项很有挑战性的技能！）</p>
+            <p>我相信生活就像一杯加了柠檬的冰茶，酸甜交织才最有味道。如果你也这么认为，那我们一定能成为好朋友！</p>
+        </section>
+        
+        <section class="gallery">
+            <h2>我的照片墙</h2>
+            <div class="gallery-container">
+                <img src="images/18b45cb9e7f6d7e0f90dd51bff78bde.jpg" alt="照片1">
+                <img src="images/5031e11d74f476303fe66e6cd47411e.jpg" alt="照片2">
+                <img src="images/c883eadd8b8300078abd7937c9e97bd.jpg" alt="照片3">
+            </div>
+        </section>
+        
+        <!-- 泰山游记部分 -->
+        <section class="taishan-trip">
+            <h2>泰山奇缘：夏的二十一与日出之旅</h2>
+            
+            <div class="article-intro">
+                <p>有人说，人生至少要爬一次泰山。而我，夏的二十一，决定在我的生日那天完成这个小目标！谁能想到，这竟然成了我人生中最"高"光的时刻～</p>
+            </div>
+            
+            <!-- 第一组照片 -->
+            <div class="taishan-photos">
+                <div class="photo-container">
+                    <div class="photo-carousel">
+                        <div class="photo-item active" data-group="1">
+                            <img src="images/泰山1.jpg" alt="泰山照片1">
+                        </div>
+                        <div class="photo-item" data-group="1">
+                            <img src="images/泰山2.jpg" alt="泰山照片2">
+                        </div>
+                    </div>
+                    <div class="photo-nav">
+                        <span class="photo-dot active" data-group="1" data-index="0"></span>
+                        <span class="photo-dot" data-group="1" data-index="1"></span>
+                    </div>
+                </div>
+                
+                <!-- 添加emoji图片 -->
+                <div class="emoji-container">
+                    <img src="images/emoj1.jpg" alt="开心表情" class="emoji-img">
+                    <p class="emoji-caption">出发咯~</p>
+                </div>
+            </div>
+            
+            <div class="article-content">
+                <p>出发前，朋友们都说我疯了："你知道攀登泰山有多累吗？""听说要爬6个小时！""你这小身板能行吗？"</p>
+                <p>呵，小瞧我夏的二十一！我决定用实际行动证明，我不仅能爬，还要爬到看日出！</p>
+                <p>计划是午夜出发，半夜登山。背包里装了：两瓶水、三根能量棒、一件厚外套、手电筒和我的幸运小熊挂件。（没错，登山也要可爱！）</p>
+            </div>
+            
+            <!-- 第二组照片 -->
+            <div class="taishan-photos reverse">
+                <!-- 添加emoji图片 -->
+                <div class="emoji-container">
+                    <img src="images/emoj2.jpg" alt="困难表情" class="emoji-img">
+                    <p class="emoji-caption">累到怀疑人生...</p>
+                </div>
+                
+                <div class="photo-container">
+                    <div class="photo-carousel">
+                        <div class="photo-item active" data-group="2">
+                            <img src="images/泰山3.jpg" alt="泰山照片3">
+                        </div>
+                        <div class="photo-item" data-group="2">
+                            <img src="images/泰山4.jpg" alt="泰山照片4">
+                        </div>
+                    </div>
+                    <div class="photo-nav">
+                        <span class="photo-dot active" data-group="2" data-index="0"></span>
+                        <span class="photo-dot" data-group="2" data-index="1"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="article-content">
+                <p>登山第一小时：轻松愉快，走走停停拍照，满怀信心对路人说"泰山很easy嘛～"</p>
+                <p>登山第三小时：腿已不是自己的腿，肺已不是自己的肺。爬过"十八盘"时，我开始怀疑人生。</p>
+                <p>当我气喘吁吁爬到一半时，一位80岁老奶奶轻松从我身边走过，还微笑着问我："小姑娘，要不要吃块糖？"我接过糖，内心无比震撼——我居然被一位老奶奶超越了！这一刻，我体会到了什么叫"泰山压顶"的感觉！</p>
+            </div>
+            
+            <!-- 第三组照片（带第五张） -->
+            <div class="taishan-photos">
+                <div class="photo-container">
+                    <div class="photo-carousel">
+                        <div class="photo-item active" data-group="3">
+                            <img src="images/泰山5.jpg" alt="泰山照片5">
+                        </div>
+                        <div class="photo-item" data-group="3">
+                            <img src="images/泰山1.jpg" alt="泰山照片1再次展示">
+                        </div>
+                    </div>
+                    <div class="photo-nav">
+                        <span class="photo-dot active" data-group="3" data-index="0"></span>
+                        <span class="photo-dot" data-group="3" data-index="1"></span>
+                    </div>
+                </div>
+                
+                <!-- 添加emoji图片 -->
+                <div class="emoji-container">
+                    <img src="images/emoj3.jpg" alt="欢呼表情" class="emoji-img">
+                    <p class="emoji-caption">终于到顶啦！</p>
+                </div>
+            </div>
+            
+            <div class="article-content">
+                <p>登顶那一刻，所有的疲惫都化为惊叹。云海翻腾，日出东方，金光万丈，照亮了整个山巅。我站在天地之间，仿佛触摸到了宇宙的边缘。</p>
+                <p>在日出的瞬间，我举起了我的小熊挂件："看，我们登顶啦！"拍下这张照片后，我的手机突然没电了——但这也许是上天的安排，让我能完全沉浸在这美妙的时刻，而不是忙着发朋友圈。</p>
+                <p>下山时，我遇到了那位老奶奶，她笑着说："我每年都来，这是第18次了。"我惊讶地问她为什么要一次又一次地来。她指了指山顶说："因为每次日出都不一样，就像人生，每一天都值得期待。"</p>
+                <p>回到家后，朋友们问我爬泰山感受如何，我笑着回答："我终于理解'会当凌绝顶，一览众山小'的感觉了——不过下次我可能会选择坐缆车。"</p>
+            </div>
+            
+            <!-- 文章结尾emoji -->
+            <div class="emoji-conclusion">
+                <img src="images/emoj4.jpg" alt="思考表情" class="emoji-img">
+                <p class="emoji-caption">下次，我还会再来的！</p>
+            </div>
+        </section>
+        
+        <footer>
+            <h2>关注我</h2>
+            <p class="social-subtitle">可以点击下列更深入了解我哦</p>
+            <div class="social-links">
+                <a href="https://www.douyin.com/user/MS4wLjABAAAAUGTgm7WrAO5Al3LYUBFvna0cmWhTXqM05brNXJrdg-7YfyIAGQYiNm-Qgs6JgBa6" class="social-btn douyin" target="_blank" rel="noopener noreferrer">抖音</a>
+                <a href="#" class="social-btn weibo" onclick="alert('微博功能即将上线！'); return false;">微博</a>
+                <a href="#" class="social-btn xiaohongshu" onclick="alert('小红书功能即将上线！'); return false;">小红书</a>
+            </div>
+            <p class="copyright">© 2023 夏的二十一. 版权所有.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 轮播图功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.querySelector('.carousel');
+            const items = document.querySelectorAll('.carousel-item');
+            const dots = document.querySelectorAll('.dot');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            let currentIndex = 0;
+            let interval;
+
+            // 初始化显示
+            showSlide(currentIndex);
+            
+            // 开始自动轮播
+            startAutoSlide();
+            
+            // 点击前一张按钮
+            prevBtn.addEventListener('click', function() {
+                stopAutoSlide();
+                showSlide(currentIndex - 1);
+                startAutoSlide();
+            });
+            
+            // 点击后一张按钮
+            nextBtn.addEventListener('click', function() {
+                stopAutoSlide();
+                showSlide(currentIndex + 1);
+                startAutoSlide();
+            });
+            
+            // 点击指示点
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    stopAutoSlide();
+                    currentIndex = parseInt(this.getAttribute('data-index'));
+                    showSlide(currentIndex);
+                    startAutoSlide();
+                });
+            });
+            
+            // 当用户悬停在轮播图上时暂停自动轮播
+            carousel.addEventListener('mouseenter', stopAutoSlide);
+            carousel.addEventListener('mouseleave', startAutoSlide);
+            
+            // 显示特定索引的幻灯片
+            function showSlide(index) {
+                // 处理边界情况
+                if (index < 0) {
+                    currentIndex = items.length - 1;
+                } else if (index >= items.length) {
+                    currentIndex = 0;
+                } else {
+                    currentIndex = index;
+                }
+                
+                // 更新活动状态和位置
+                updateCarouselItems();
+                
+                // 更新指示点状态
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentIndex);
+                });
+            }
+            
+            // 更新所有轮播项的位置以创建3D效果
+            function updateCarouselItems() {
+                items.forEach((item, index) => {
+                    // 计算与当前活动项的距离
+                    let diff = index - currentIndex;
+                    
+                    // 如果差值太大，则通过数组长度调整以创建循环效果
+                    if (diff > items.length / 2) {
+                        diff -= items.length;
+                    } else if (diff < -items.length / 2) {
+                        diff += items.length;
+                    }
+                    
+                    // 移除所有活动状态
+                    item.classList.remove('active');
+                    
+                    // 根据距离设置位置
+                    if (diff === 0) {
+                        // 当前活动项居中
+                        item.classList.add('active');
+                        item.style.transform = 'translateX(0) scale(1)';
+                        item.style.opacity = '1';
+                        item.style.zIndex = '2';
+                    } else if (diff === -1 || (diff === items.length - 1)) {
+                        // 左侧项
+                        item.style.transform = 'translateX(-70%) scale(0.8)';
+                        item.style.opacity = '0.7';
+                        item.style.zIndex = '1';
+                    } else if (diff === 1 || diff === -(items.length - 1)) {
+                        // 右侧项
+                        item.style.transform = 'translateX(70%) scale(0.8)';
+                        item.style.opacity = '0.7';
+                        item.style.zIndex = '1';
+                    } else {
+                        // 隐藏其他项
+                        item.style.transform = 'translateX(' + (diff * 100) + '%) scale(0.6)';
+                        item.style.opacity = '0';
+                        item.style.zIndex = '0';
+                    }
+                });
+            }
+            
+            // 开始自动轮播
+            function startAutoSlide() {
+                interval = setInterval(function() {
+                    showSlide(currentIndex + 1);
+                }, 3000);
+            }
+            
+            // 停止自动轮播
+            function stopAutoSlide() {
+                clearInterval(interval);
+            }
+            
+            // 初始化时显示所有轮播项
+            updateCarouselItems();
+        });
+
+        // 添加页面滚动动画
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.intro, .gallery, footer');
+            
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                
+                // 当元素进入视口时添加淡入效果
+                if(position.top < window.innerHeight && position.bottom >= 0) {
+                    element.style.animation = 'fadeIn 0.8s ease forwards';
+                    element.style.opacity = '1';
+                }
+            });
+        });
+
+        // 为社交媒体按钮添加动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const socialBtns = document.querySelectorAll('.social-btn');
+            
+            socialBtns.forEach(btn => {
+                btn.addEventListener('mouseover', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                });
+                
+                btn.addEventListener('mouseout', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+
+        // 泰山照片轮播功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const photoGroups = [1, 2, 3]; // 三组照片
+            const photoIntervals = {};
+            
+            // 初始化每组照片的轮播
+            photoGroups.forEach(groupId => {
+                const items = document.querySelectorAll(`.photo-item[data-group="${groupId}"]`);
+                const dots = document.querySelectorAll(`.photo-dot[data-group="${groupId}"]`);
+                let currentIndex = 0;
+                
+                // 开始自动轮播
+                startPhotoSlide(groupId);
+                
+                // 点击指示点切换照片
+                dots.forEach(dot => {
+                    dot.addEventListener('click', function() {
+                        stopPhotoSlide(groupId);
+                        currentIndex = parseInt(this.getAttribute('data-index'));
+                        showPhoto(items, dots, currentIndex);
+                        startPhotoSlide(groupId);
+                    });
+                });
+            });
+            
+            // 显示指定索引的照片
+            function showPhoto(items, dots, index) {
+                items.forEach(item => item.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                items[index].classList.add('active');
+                dots[index].classList.add('active');
+            }
+            
+            // 照片轮播自动切换
+            function startPhotoSlide(groupId) {
+                const items = document.querySelectorAll(`.photo-item[data-group="${groupId}"]`);
+                const dots = document.querySelectorAll(`.photo-dot[data-group="${groupId}"]`);
+                let currentIndex = 0;
+                
+                // 为每组设置不同的切换时间，避免同时切换
+                const delay = 4000 + (groupId * 1000); 
+                photoIntervals[groupId] = setInterval(function() {
+                    currentIndex = (currentIndex + 1) % items.length;
+                    
+                    items.forEach(item => item.classList.remove('active'));
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    
+                    items[currentIndex].classList.add('active');
+                    dots[currentIndex].classList.add('active');
+                }, delay);
+            }
+            
+            // 停止轮播
+            function stopPhotoSlide(groupId) {
+                clearInterval(photoIntervals[groupId]);
+            }
+        });
+
+        // 木鱼游戏功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const muyuImage1 = document.getElementById('muyuImage1');
+            const muyuImage2 = document.getElementById('muyuImage2');
+            const muyuSound = document.getElementById('muyuSound');
+            const muyuCounter1 = document.getElementById('muyuCounter1');
+            const muyuCounter2 = document.getElementById('muyuCounter2');
+            let counter1 = 0;
+            let counter2 = 0;
+            
+            // 功德词汇库
+            const meritTexts = [
+                '功德+1',
+                '佛祖保佑',
+                '心想事成',
+                '平安喜乐',
+                '福寿安康',
+                '六六大顺',
+                '万事如意',
+                '升官发财',
+                '智慧增长',
+                '业障消除'
+            ];
+            
+            // 左木鱼点击事件
+            muyuImage1.addEventListener('click', function(e) {
+                // 播放音效
+                muyuSound.currentTime = 0;
+                muyuSound.play();
+                
+                // 增加功德计数
+                counter1++;
+                muyuCounter1.textContent = counter1;
+                
+                // 随机选择一个功德词
+                const randomText = meritTexts[Math.floor(Math.random() * meritTexts.length)];
+                
+                // 创建功德文字弹出效果
+                const meritPopup = document.createElement('div');
+                meritPopup.className = 'merit-popup';
+                meritPopup.textContent = randomText;
+                
+                // 将弹出元素添加到木鱼容器中
+                const muyuContainer = muyuImage1.closest('.muyu-container');
+                muyuContainer.appendChild(meritPopup);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    meritPopup.remove();
+                }, 1500);
+            });
+            
+            // 右木鱼点击事件
+            muyuImage2.addEventListener('click', function(e) {
+                // 播放音效
+                muyuSound.currentTime = 0;
+                muyuSound.play();
+                
+                // 增加功德计数
+                counter2++;
+                muyuCounter2.textContent = counter2;
+                
+                // 随机选择一个功德词
+                const randomText = meritTexts[Math.floor(Math.random() * meritTexts.length)];
+                
+                // 创建功德文字弹出效果
+                const meritPopup = document.createElement('div');
+                meritPopup.className = 'merit-popup';
+                meritPopup.textContent = randomText;
+                
+                // 将弹出元素添加到木鱼容器中
+                const muyuContainer = muyuImage2.closest('.muyu-container');
+                muyuContainer.appendChild(meritPopup);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    meritPopup.remove();
+                }, 1500);
+            });
+            
+            // 创建流星效果
+            createShootingStars();
+        });
+        
+        // 创建流星
+        function createShootingStars() {
+            const body = document.body;
+            const starCount = 35; // 增加数量
+            const colors = [
+                '#FF9AA2', // 粉红
+                '#FFB7B2', // 浅粉
+                '#FFDAC1', // 杏色
+                '#E2F0CB', // 淡绿
+                '#B5EAD7', // 薄荷
+                '#C7CEEA', // 淡紫
+                '#FF6B6B', // 珊瑚红
+                '#4ECDC4', // 蓝绿
+                '#F7FFF7', // 白色
+                '#FFD166', // 黄色
+                '#87CEEB', // 天蓝
+                '#98FB98', // 淡绿
+                '#FFA07A', // 浅橙
+                '#DDA0DD'  // 淡紫
+            ];
+            
+            // 创建初始花瓣
+            for (let i = 0; i < starCount; i++) {
+                setTimeout(() => {
+                    createPetal();
+                }, i * 200);
+            }
+            
+            // 花瓣创建函数
+            function createPetal() {
+                // 随机选择创建花瓣或流星
+                const isFlower = Math.random() > 0.3; // 70%概率是花瓣
+                
+                if (isFlower) {
+                    // 创建花瓣
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    
+                    // 随机位置
+                    const startX = Math.random() * window.innerWidth;
+                    const startY = Math.random() * window.innerHeight * 0.2 - 50;
+                    
+                    // 随机大小、角度和颜色
+                    const size = Math.random() * 6 + 4;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const random_x = (Math.random() * 200 - 100);
+                    
+                    petal.style.left = startX + 'px';
+                    petal.style.top = startY + 'px';
+                    petal.style.width = size + 'px';
+                    petal.style.height = size + 'px';
+                    petal.style.color = color;
+                    petal.style.setProperty('--random-x', random_x + 'px');
+                    
+                    // 随机旋转和飘落时间
+                    const duration = Math.random() * 5 + 5; // 5-10秒
+                    petal.style.animation = `falling ${duration}s linear ${Math.random() * 2}s`;
+                    
+                    body.appendChild(petal);
+                    
+                    // 完成动画后移除并重新创建
+                    setTimeout(() => {
+                        petal.remove();
+                        createPetal();
+                    }, duration * 1000 + 2000);
+                } else {
+                    // 创建流星
+                    const star = document.createElement('div');
+                    star.className = 'shooting-star';
+                    
+                    // 随机起始位置
+                    const startX = Math.random() * window.innerWidth * 0.3;
+                    const startY = Math.random() * window.innerHeight * 0.3;
+                    
+                    // 随机大小和颜色
+                    const size = Math.random() * 1.5 + 0.5;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    star.style.left = startX + 'px';
+                    star.style.top = startY + 'px';
+                    star.style.width = size + 'px';
+                    star.style.height = size + 'px';
+                    star.style.backgroundColor = color;
+                    star.style.boxShadow = `0 0 ${size * 6}px ${size * 2}px ${color}`;
+                    
+                    // 随机运动方向和时间
+                    const angle = Math.random() * 45 + 20;
+                    const duration = Math.random() * 2 + 1;
+                    
+                    star.style.transform = `rotate(${angle}deg)`;
+                    star.style.animation = `shooting ${duration}s linear ${Math.random() * 2}s`;
+                    
+                    body.appendChild(star);
+                    
+                    // 完成动画后移除并重新创建
+                    setTimeout(() => {
+                        star.remove();
+                        createPetal();
+                    }, duration * 1000 + 2000);
+                }
+            }
+        }
+
+        // 点击撒花效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 猫爪图案SVG
+            const leftPawSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="cat-paw left">
+                <path d="M35,90 C20,90 10,80 15,65 C18,55 25,50 30,55 C35,60 30,65 35,70 C40,75 45,75 50,75 C55,75 60,75 65,70 C70,65 65,60 70,55 C75,50 82,55 85,65 C90,80 80,90 65,90 C55,90 45,90 35,90 Z" fill="#FFC0CB" stroke="#FF6B88" stroke-width="2"/>
+                <circle cx="30" cy="60" r="3" fill="#FF6B88"/>
+                <circle cx="40" cy="65" r="3" fill="#FF6B88"/>
+                <circle cx="50" cy="67" r="3" fill="#FF6B88"/>
+                <circle cx="60" cy="65" r="3" fill="#FF6B88"/>
+                <circle cx="70" cy="60" r="3" fill="#FF6B88"/>
+            </svg>`;
+            
+            const rightPawSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="cat-paw right">
+                <path d="M35,90 C20,90 10,80 15,65 C18,55 25,50 30,55 C35,60 30,65 35,70 C40,75 45,75 50,75 C55,75 60,75 65,70 C70,65 65,60 70,55 C75,50 82,55 85,65 C90,80 80,90 65,90 C55,90 45,90 35,90 Z" fill="#FFC0CB" stroke="#FF6B88" stroke-width="2"/>
+                <circle cx="30" cy="60" r="3" fill="#FF6B88"/>
+                <circle cx="40" cy="65" r="3" fill="#FF6B88"/>
+                <circle cx="50" cy="67" r="3" fill="#FF6B88"/>
+                <circle cx="60" cy="65" r="3" fill="#FF6B88"/>
+                <circle cx="70" cy="60" r="3" fill="#FF6B88"/>
+            </svg>`;
+            
+            // 共享颜色库
+            const colorPalette = [
+                '#FF9AA2', // 粉红
+                '#FFB7B2', // 浅粉
+                '#FFDAC1', // 杏色
+                '#E2F0CB', // 淡绿
+                '#B5EAD7', // 薄荷
+                '#C7CEEA', // 淡紫
+                '#FF6B6B', // 珊瑚红
+                '#4ECDC4', // 蓝绿
+                '#F7FFF7', // 白色
+                '#FFD166', // 黄色
+                '#87CEEB', // 天蓝
+                '#98FB98', // 淡绿
+                '#FFA07A', // 浅橙
+                '#DDA0DD'  // 淡紫
+            ];
+            
+            // 鼠标拖尾效果
+            let mouseX = 0;
+            let mouseY = 0;
+            let trailElements = [];
+            const maxTrailLength = 35; // 最大拖尾粒子数量
+            let lastTrailTime = 0;
+            const trailInterval = 20; // 生成新粒子的间隔(毫秒)
+            
+            // 监听鼠标移动
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                const currentTime = Date.now();
+                // 控制粒子生成频率
+                if (currentTime - lastTrailTime > trailInterval) {
+                    createTrailParticle();
+                    lastTrailTime = currentTime;
+                }
+            });
+            
+            // 创建拖尾粒子
+            function createTrailParticle() {
+                // 控制粒子总数量
+                if (trailElements.length >= maxTrailLength) {
+                    // 移除最早的粒子
+                    if (trailElements[0] && trailElements[0].parentNode) {
+                        trailElements[0].remove();
+                    }
+                    trailElements.shift();
+                }
+                
+                const trail = document.createElement('div');
+                trail.className = 'mouse-trail';
+                
+                // 随机颜色
+                const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                trail.style.backgroundColor = randomColor;
+                trail.style.color = randomColor;
+                
+                // 设置位置
+                trail.style.left = mouseX + 'px';
+                trail.style.top = mouseY + 'px';
+                
+                document.body.appendChild(trail);
+                trailElements.push(trail);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (trail && trail.parentNode) {
+                        trail.remove();
+                        // 从数组中移除
+                        const index = trailElements.indexOf(trail);
+                        if (index > -1) {
+                            trailElements.splice(index, 1);
+                        }
+                    }
+                }, 800); // 与动画时长一致
+            }
+            
+            // 每隔一段时间随机创建一个粒子，即使鼠标不动也有动态效果
+            function createRandomTrail() {
+                // 只有当鼠标位置有效时才创建
+                if (mouseX > 0 || mouseY > 0) {
+                    // 在鼠标附近随机位置创建粒子
+                    const offsetX = (Math.random() - 0.5) * 20;
+                    const offsetY = (Math.random() - 0.5) * 20;
+                    
+                    const trail = document.createElement('div');
+                    trail.className = 'mouse-trail';
+                    
+                    // 随机颜色
+                    const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                    trail.style.backgroundColor = randomColor;
+                    trail.style.color = randomColor;
+                    
+                    // 设置位置
+                    trail.style.left = (mouseX + offsetX) + 'px';
+                    trail.style.top = (mouseY + offsetY) + 'px';
+                    
+                    document.body.appendChild(trail);
+                    
+                    // 动画结束后移除元素
+                    setTimeout(() => {
+                        if (trail && trail.parentNode) {
+                            trail.remove();
+                        }
+                    }, 800);
+                }
+                
+                // 随机间隔继续创建
+                setTimeout(createRandomTrail, Math.random() * 500 + 300);
+            }
+            
+            // 启动随机粒子效果
+            createRandomTrail();
+            
+            // 监听点击事件
+            document.body.addEventListener('click', function(e) {
+                // 忽略对木鱼等可点击元素的点击
+                if (e.target.closest('.muyu-image') || 
+                    e.target.closest('.social-btn') || 
+                    e.target.closest('.dot') ||
+                    e.target.closest('.prev-btn') ||
+                    e.target.closest('.next-btn') ||
+                    e.target.closest('.photo-dot')) {
+                    return;
+                }
+                
+                // 确定点击位置是左侧还是右侧
+                const isLeftSide = e.clientX < window.innerWidth / 2;
+                
+                // 创建猫爪
+                const paw = document.createElement('div');
+                paw.innerHTML = isLeftSide ? leftPawSVG : rightPawSVG;
+                document.body.appendChild(paw.firstChild);
+                
+                const catPaw = isLeftSide 
+                    ? document.querySelector('.cat-paw.left') 
+                    : document.querySelector('.cat-paw.right');
+                
+                // 设置猫爪位置
+                catPaw.style.left = (e.clientX - 50) + 'px';
+                catPaw.style.top = (e.clientY - 50) + 'px';
+                
+                // 根据左右设置不同动画
+                if (isLeftSide) {
+                    catPaw.style.animation = 'pawAnimation 1s forwards';
+                } else {
+                    catPaw.style.animation = 'pawAnimationRight 1s forwards';
+                }
+                
+                // 创建花瓣
+                const petalCount = 20 + Math.floor(Math.random() * 15);
+                
+                for (let i = 0; i < petalCount; i++) {
+                    setTimeout(() => {
+                        const petal = document.createElement('div');
+                        petal.className = 'click-petal';
+                        
+                        // 花瓣属性
+                        const size = Math.random() * 6 + 4;
+                        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                        
+                        // 随机终点位置
+                        const endX = (Math.random() * 200 - 100);
+                        const endY = 100 + Math.random() * 100;
+                        
+                        // 应用样式
+                        petal.style.width = size + 'px';
+                        petal.style.height = size + 'px';
+                        petal.style.left = e.clientX + 'px';
+                        petal.style.top = e.clientY + 'px';
+                        petal.style.color = color;
+                        petal.style.setProperty('--end-x', endX + 'px');
+                        petal.style.setProperty('--end-y', endY + 'px');
+                        
+                        // 设置动画
+                        const duration = 1 + Math.random() * 2;
+                        petal.style.animation = `clickPetalFalling ${duration}s ease-out forwards`;
+                        
+                        document.body.appendChild(petal);
+                        
+                        // 动画结束后移除
+                        setTimeout(() => {
+                            petal.remove();
+                        }, duration * 1000);
+                    }, i * 30);
+                }
+                
+                // 移除猫爪
+                setTimeout(() => {
+                    catPaw.remove();
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html> 
